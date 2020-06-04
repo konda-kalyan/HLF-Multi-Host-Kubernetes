@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer0-org3-example-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: peer0-org3-example-com
+  template:
+    metadata:
+      labels:
+        name: peer0-org3-example-com
+    spec:
+      volumes:
+      - name: fabricfiles
+        persistentVolumeClaim:
+          claimName: fabric-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: peer0-org3-example-com
+        image: hyperledger/fabric-peer:amd64-1.4.4
+        command: ["sh", "-c", "peer node start"]
+        env:
+        - name: CORE_PEER_ID
+          value: peer0.org3.example.com
+        - name: CORE_PEER_ADDRESS
+          value: peer0.org3.example.com:7051
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:7051
+        - name: CORE_PEER_CHAINCODEADDRESS
+          value: peer0.org3.example.com:7052
+        - name: CORE_PEER_CHAINCODELISTENADDRESS
+          value: 0.0.0.0:7052		  
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: peer1.org3.example.com:7051
+        - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+          value: peer0.org3.example.com:7051
+        - name: CORE_PEER_LOCALMSPID
+          value: Org1MSP		  
+        - name: CORE_VM_ENDPOINT
+          value: unix:///host/var/run/docker.sock
+        - name: CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE
+          value: ${COMPOSE_PROJECT_NAME}_kalyan
+        - name: FABRIC_LOGGING_SPEC
+          value: INFO
+        - name: CORE_PEER_TLS_ENABLED
+          value: "true"
+        - name: CORE_PEER_GOSSIP_USELEADERELECTION
+          value: "true"
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_PEER_TLS_CERT_FILE
+          value: /fabric/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/server.crt
+        - name: CORE_PEER_TLS_KEY_FILE
+          value: /fabric/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/server.key	
+        - name: CORE_PEER_TLS_ROOTCERT_FILE
+          value: /fabric/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: CouchDB		
+        - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
+          value: couchdb-peer0-org3-example-com:5984
+        - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
+          value: 
+        - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+          value: 
+        - name: CORE_CHAINCODE_LOGGING_LEVEL
+          value: INFO		
+        - name: CORE_CHAINCODE_LOGGING_SHIM
+          value: INFO
+        - name: CORE_OPERATIONS_LISTENADDRESS
+          value: 0.0.0.0:9443  # operation RESTful API
+        - name: CORE_METRICS_PROVIDER
+          value: prometheus  # prometheus will pull metrics from orderer via /metrics RESTful API
+        - name: CORE_OPERATIONS_TLS_ENABLED
+          value: "false"		
+        - name: CORE_CHAINCODE_LOGGING_SHIM
+          value: INFO
+        - name: CORE_OPERATIONS_TLS_CERTIFICATE
+          value: /fabric/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/server.crt
+        - name: CORE_OPERATIONS_TLS_PRIVATEKEY
+          value: /fabric/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/server.key
+        - name: CORE_OPERATIONS_TLS_CLIENTROOTCAS
+          value: /fabric/crypto-config/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+        - name: CORE_OPERATIONS_TLS_CLIENTAUTHREQUIRED
+          value: "false"
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:7053
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: orderer1.example.com:7050	
+        - name: ORDERER_URL
+          value: orderer2.example.com:7050    
+        - name: ORDERER_URL
+          value: orderer3.example.com:7050
+        volumeMounts:
+        - mountPath: /fabric
+          name: fabricfiles
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+      - name: couchdb-peer0-org3-example-com
+        image: hyperledger/fabric-couchdb:amd64-0.4.18
+        env:
+        - name: COUCHDB_USER
+          value: 
+        - name: COUCHDB_PASSWORD
+          value: 

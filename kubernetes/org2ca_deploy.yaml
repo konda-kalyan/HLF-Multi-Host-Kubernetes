@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ca-org2-example-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ca-org2-example-com
+  template:
+    metadata:
+      labels:
+        name: ca-org2-example-com
+    spec:
+      volumes:
+      - name: fabricfiles
+        persistentVolumeClaim:
+          claimName: fabric-pvc
+
+      containers:
+      - name: ca-org2-example-com
+        image: hyperledger/fabric-ca:amd64-1.4.4
+        command: ["sh", "-c", "fabric-ca-server start --ca.certfile /fabric/crypto-config/peerOrganizations/org2.example.com/ca/ca.org2.example.com-cert.pem --ca.keyfile /fabric/crypto-config/peerOrganizations/org2.example.com/ca/a9096a49d6db0521c3f40772327ae110069ad87c02748a9827b48415f60f6c89_sk -b admin:adminpw -d"]
+        env:
+        - name: FABRIC_CA_HOME
+          value: /fabric/hyperledger/fabric-ca-server
+        - name: FABRIC_CA_SERVER_CA_NAME
+          value: "ca-org2-example-com"
+        - name: FABRIC_CA_SERVER_TLS_ENABLED
+          value: "true"
+        - name: FABRIC_CA_SERVER_TLS_CERTFILE
+          value: /fabric/crypto-config/peerOrganizations/org2.example.com/ca/ca.org2.example.com-cert.pem
+        - name: FABRIC_CA_SERVER_TLS_KEYFILE
+          value: /fabric/crypto-config/peerOrganizations/org2.example.com/ca/a9096a49d6db0521c3f40772327ae110069ad87c02748a9827b48415f60f6c89_sk
+        - name: FABRIC_CA_SERVER_PORT
+          value: "7054" 
+        volumeMounts:
+        - mountPath: /fabric
+          name: fabricfiles
