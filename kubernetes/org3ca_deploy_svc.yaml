@@ -37,3 +37,22 @@ spec:
         volumeMounts:
         - mountPath: /fabric
           name: fabricfiles
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ca-org3-example-com
+  labels:
+    run: ca-org3-example-com
+spec:
+  type: ClusterIP
+  selector:
+    name: ca-org3-example-com
+  ports:
+  - protocol: TCP
+    port: 7054
+    targetPort: 7054
+    name: grpcs
+

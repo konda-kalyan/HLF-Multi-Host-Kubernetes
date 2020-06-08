@@ -64,7 +64,8 @@ spec:
         - name: CORE_LEDGER_STATE_STATEDATABASE
           value: CouchDB		
         - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
-          value: couchdb-peer0-org1-example-com:5984
+          value: localhost:5984
+          #value: couchdb-peer0-org1-example-com:5984
         - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
           value: 
         - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
